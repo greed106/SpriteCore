@@ -1,4 +1,4 @@
-#include "sprite/Sprite.hpp"
+#include "SpriteCore/Sprite.hpp"
 
 Sprite::Sprite(Stirps *stirps, std::string spriteName, int level, int exp) :
     stirps(stirps), spriteName(spriteName), level(level, exp)

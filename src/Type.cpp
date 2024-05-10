@@ -1,4 +1,4 @@
-#include "sprite/Type.hpp"
+#include "SpriteCore/Type.hpp"
 
 Type::Type(int attack, int defense, int health,
      int attackSpeed, std::string typeName) :

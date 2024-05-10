@@ -1,5 +1,5 @@
 #include <iostream>
-#include "sprite/Sprite.hpp"
+#include "SpriteCore/Sprite.hpp"
 
 int main(){
     Sprite sprite(new Primeape(), "tim");

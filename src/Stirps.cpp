@@ -1,4 +1,4 @@
-#include "sprite/Stirps.hpp"
+#include "SpriteCore/Stirps.hpp"
 
 
 Primeape::Primeape(int level) : 
