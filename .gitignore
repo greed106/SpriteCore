@@ -1,0 +1,11 @@
+# 除了 .gitignore 文件外忽略所有以 . 开头的文件
+.*
+!.gitignore
+
+# 忽略特定目录
+build/
+CMakeUserPresets.json
+logs/
+
+# 忽略所有 .log 文件
+*.log
