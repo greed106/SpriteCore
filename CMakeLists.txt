@@ -38,7 +38,7 @@ find_package(spdlog CONFIG REQUIRED)
 
 
 # 库名称通过变量管理，方便未来可能的重命名
-set(LIBRARY_NAME "lib" CACHE STRING "Library name for the project")
+set(LIBRARY_NAME "SpriteCoreLib" CACHE STRING "Library name for the project")
 
 # 创建库
 add_library(${LIBRARY_NAME}
@@ -48,7 +48,7 @@ add_library(${LIBRARY_NAME}
 )
 
 # 为库创建别名
-add_library(${PROJECT_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
+add_library(${PROJECT_NAME}::lib ALIAS ${LIBRARY_NAME})
 
 # 设置库的公共头文件目录
 target_include_directories(${LIBRARY_NAME}
