@@ -6,7 +6,6 @@
 build/
 CMakeUserPresets.json
 logs/
-.vscode/
 
 # 忽略所有 .log 文件
 *.log

@@ -1,6 +1,16 @@
 {
   "dependencies": [
     "libhv",
-    "spdlog"
+    "libmysql",
+    "spdlog",
+    {
+      "name": "soci",
+      "features": ["mysql"]
+    },
+    {
+      "name": "poco",
+      "features": ["mysql"]
+    },
+    "nlohmann-json"
   ]
 }

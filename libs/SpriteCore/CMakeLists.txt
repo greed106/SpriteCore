@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 
 # 设置项目名称和版本
-project(SpriteServer VERSION 1.0.0 LANGUAGES CXX)
+project(SpriteCore VERSION 1.0.0 LANGUAGES CXX)
 
 # 指定C++标准
 set(CMAKE_CXX_STANDARD 20)
@@ -31,49 +31,38 @@ else()
     endif()
 endif()
 
+
 # 查找必要的依赖包
-find_package(libhv CONFIG REQUIRED)
-find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
-find_package(SOCI CONFIG REQUIRED)
-find_package(Poco REQUIRED COMPONENTS Data DataMySQL)
 
-set(SPRITE_CORE_PATH 
-    "libs/SpriteCore"
-    CACHE STRING "Path to SpriteCore"
+# 库名称通过变量管理，方便未来可能的重命名
+set(LIBRARY_NAME "SpriteCoreLib" CACHE STRING "Library name for the project")
+
+# 创建库
+add_library(${LIBRARY_NAME}
+    src/Type.cpp
+    src/Sprite.cpp
+    src/Stirps.cpp
 )
 
-add_subdirectory(
-    ${SPRITE_CORE_PATH}
-    SpriteCore
-)
-
-add_executable(
-    ${PROJECT_NAME}
-    src/main.cpp
-    src/User.cpp
-)
+# 为库创建别名
+add_library(${PROJECT_NAME}::lib ALIAS ${LIBRARY_NAME})
 
 # 设置库的公共头文件目录
-target_include_directories(${PROJECT_NAME}
+target_include_directories(${LIBRARY_NAME}
     PUBLIC
     ${PROJECT_SOURCE_DIR}/include
-    ${SPRITE_CORE_PATH}/include
 )
 
-# 链接库
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${LIBRARY_NAME}
     PRIVATE
-    spdlog::spdlog_header_only
-    SpriteCore::lib
     nlohmann_json::nlohmann_json
-    $<IF:$<TARGET_EXISTS:SOCI::soci_mysql>,SOCI::soci_mysql,SOCI::soci_mysql_static>
-    Poco::Data Poco::DataMySQL
 )
 
-# 平台特定的库链接
-if(WIN32)
-    target_link_libraries(${PROJECT_NAME} PRIVATE hv)
-elseif(UNIX)
-    target_link_libraries(${PROJECT_NAME} PRIVATE hv_static)
+# 根据配置决定是否构建可执行文件
+option(BUILD_EXECUTABLE "Build executable" ON)
+
+if(BUILD_EXECUTABLE)
+    add_executable(${PROJECT_NAME} src/main.cpp)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRARY_NAME})
 endif()

@@ -1,0 +1,15 @@
+{
+    "version": 2,
+    "configurePresets": [
+      {
+        "name": "vcpkg",
+        "inherits": "default",
+        "environment": {
+          "VCPKG_ROOT": "your_path_to_vcpkg"
+        },
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Release_or_Debug",
+        }
+      }
+    ]
+  }
