@@ -13,8 +13,8 @@ private:
     UserService* userService;
     SpriteService* spriteService;
     std::atomic<bool> isRunning = true;
-    BattleQueue::RequestQueue& reqQueue = BattleQueue::RequestQueue::getInstance();
-    BattleQueue::ResultQueue& resultQueue = BattleQueue::ResultQueue::getInstance();
+    BattleQueue::RequestQueue& reqQueue;
+    BattleQueue::ResultQueue& resultQueue;
     std::thread resultThread;
 
     static void onopen(const WebSocketChannelPtr& channel, const HttpRequestPtr& req){
@@ -29,11 +29,13 @@ private:
     static std::string getComputerName(){
         return "computer";
     }
-    BattleController(){
-        battleService = ServiceManager::getInstance().getBattleService();
-        userService = ServiceManager::getInstance().getUserService();
-        spriteService = ServiceManager::getInstance().getSpriteService();
-
+    BattleController() :
+        reqQueue(BattleQueue::RequestQueue::getInstance()),
+        resultQueue(BattleQueue::ResultQueue::getInstance()),
+        battleService(ServiceManager::getInstance().getBattleService()),
+        userService(ServiceManager::getInstance().getUserService()),
+        spriteService(ServiceManager::getInstance().getSpriteService())
+    {
         resultThread = std::thread([this](){
             handleBattleResult();
         });
