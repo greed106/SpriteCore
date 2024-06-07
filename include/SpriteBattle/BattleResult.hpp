@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 
 class BattleResult {
 private:
@@ -15,6 +16,7 @@ public:
         winner(winner), loser(loser), winnerExp(winnerExp), loserExp(loserExp)
     {
     }
+    BattleResult() = default;
     void showInfo() const {
         std::cout << "Winner: " << winner << std::endl;
         std::cout << "Winner Exp: " << winnerExp << std::endl;
@@ -47,4 +49,6 @@ public:
     void setLogs(const std::vector<std::string> logs) {
         this->logs = logs;
     }
+
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(BattleResult, winner, loser, winnerExp, loserExp, logs)
 };

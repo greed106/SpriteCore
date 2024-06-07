@@ -104,8 +104,8 @@ class SpriteBattle {
 public:
     static BattleResult battle(BattleNode user1, BattleNode user2){
         std::priority_queue<BattleNode, std::vector<BattleNode>, Compare> queue;
-        auto logger = spdlog::stdout_color_mt("battle");
-        logger->set_pattern("[%n] [%^%l%$] %v");
+//        auto logger = spdlog::stdout_color_mt("battle");
+//        logger->set_pattern("[%n] [%^%l%$] %v");
         user1.clear();
         user2.clear();
         user1.updatePriority();
@@ -125,7 +125,7 @@ public:
             queue.pop();
             Buff buff = attacker.getBuff();
             std::string message = "Round " + std::to_string(round) + ": " + attacker.getUsername() + " attack " + defender.getUsername();
-            logger->info(message);
+//            logger->info(message);
             logs.push_back(message);
 
             if(buff.isForSelf()){
@@ -134,18 +134,18 @@ public:
                 defender.addBuff(buff);
             }
             message = "attack: " + std::to_string(attacker.getAttack()) + ", defense: " + std::to_string(defender.getDefense());
-            logger->info(message);
+//            logger->info(message);
             int damage = attacker.getAttack() - defender.getDefense();
             if(damage < 0 || RandomUtil::random() < 0.05){
                 damage = 0;
                 message = "Miss!";
-                logger->info(message);
+//                logger->info(message);
                 logs.push_back(message);
             }
             defender.hurt(damage);
 
             message = "attacker health: " + std::to_string(attacker.getHealth()) + ", defender health: " + std::to_string(defender.getHealth());
-            logger->info(message);
+//            logger->info(message);
             logs.push_back(message);
 
             if(defender.isDead()){

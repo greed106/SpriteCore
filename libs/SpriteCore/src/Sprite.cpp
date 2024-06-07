@@ -87,3 +87,7 @@ Buff Sprite::getBuff() const {
 Level Sprite::getLevel() const {
     return level;
 }
+
+void Sprite::setSpriteName(const std::string &newName) {
+    this->spriteName = newName;
+}

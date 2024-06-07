@@ -28,4 +28,5 @@ public:
     std::shared_ptr<Type> getType() const;
     Buff getBuff() const;
     Level getLevel() const;
+    void setSpriteName(const std::string& newName);
 };

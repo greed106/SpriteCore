@@ -4,6 +4,7 @@
 #include "SpriteService.hpp"
 #include "impl/UserServiceImpl.hpp"
 #include "impl/SpriteServiceImpl.hpp"
+#include "impl/BattleServiceImpl.hpp"
 
 class ServiceManager {
 public:
@@ -18,6 +19,10 @@ public:
 
     SpriteService* getSpriteService() {
         return &SpriteServiceImpl::getInstance();
+    }
+
+    BattleService* getBattleService() {
+        return &BattleServiceImpl::getInstance();
     }
 
     ServiceManager(const ServiceManager&) = delete;
