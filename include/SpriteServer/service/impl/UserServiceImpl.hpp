@@ -70,6 +70,11 @@ public:
         }
         return users;
     }
+
+    bool isUserNameExist(const std::string& username) override {
+        auto user = userMapper.getUserByName(username);
+        return user != nullptr;
+    }
 private:
     UserMapper& userMapper;
 

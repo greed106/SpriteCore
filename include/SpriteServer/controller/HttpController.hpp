@@ -24,6 +24,9 @@ public:
         router.POST("/login", [](const HttpContextPtr& ctx) {
             return HttpController::getInstance().handleLogin(ctx);
         });
+        router.POST("/register", [](const HttpContextPtr& ctx){
+            return HttpController::getInstance().handleRegister(ctx);
+        });
     }
     // 删除拷贝构造函数和赋值运算符
     HttpController(const HttpController&) = delete;
@@ -72,6 +75,27 @@ private:
 
         hv::Json resp;
         resp["valid"] = userService->login(username, password);
+        return ctx->send(resp.dump());
+    }
+
+    int handleRegister(const HttpContextPtr& ctx){
+        auto registerReq = nlohmann::json::parse(ctx->body()).get<LoginRequest>();
+        auto username = registerReq.getUsername();
+        auto password = registerReq.getPassword();
+        logger->info("Register request: username={} password={}",
+             username, password);
+
+        auto isExist = userService->isUserNameExist(username);
+        hv::Json resp;
+        resp["valid"] = !isExist;
+        if(!isExist){
+            userService->addUser(username, password);
+            for(int i = 1; i <= 3; i++){
+                auto name = "RandomSprite_" + std::to_string(i);
+                auto sprite = Factory::createRandomSprite(name);
+                spriteService->addSprite(username, *sprite);
+            }
+        }
         return ctx->send(resp.dump());
     }
 };
