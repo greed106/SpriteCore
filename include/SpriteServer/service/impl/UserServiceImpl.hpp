@@ -24,15 +24,55 @@ public:
     }
 
     std::shared_ptr<User> getUser(const std::string& name) override {
-        return userMapper.getUserByName(name);
+        auto user = userMapper.getUserByName(name);
+        if(user == nullptr) {
+            std::cerr << "User not found: " + name << std::endl;
+            return nullptr;
+        }
+        auto medals = userMapper.getMedalsByName(name);
+        for(auto& medal : medals) {
+            user->addMedal(medal);
+        }
+        return user;
     }
 
+    void updateUser(const User& user) override {
+        userMapper.updateUser(user);
+    }
+
+    void addMedal(const std::string& name, const std::string& medal) override {
+        userMapper.addMedal(name, medal);
+    }
+
+    void addWinner(const std::string& name) override {
+        auto user = userMapper.getUserByName(name);
+        user->addWinner();
+        userMapper.updateUser(*user);
+    }
+
+    void addBattleTimes(const std::string& name) override {
+        auto user = userMapper.getUserByName(name);
+        user->addBattleTimes();
+        userMapper.updateUser(*user);
+    }
+
+    void setOnline(const std::string& name, bool online) override {
+        userMapper.setOnline(name, online);
+    }
+
+    std::vector<std::shared_ptr<User>> getOnlineUsers() override {
+        auto users = userMapper.getOnlineUsers();
+        for(auto& user : users) {
+            auto medals = userMapper.getMedalsByName(user->getName());
+            for(auto& medal : medals) {
+                user->addMedal(medal);
+            }
+        }
+        return users;
+    }
 private:
     UserMapper& userMapper;
 
     UserServiceImpl() : userMapper(UserMapper::getInstance()) {}
     ~UserServiceImpl() = default;
-
-    UserServiceImpl(const UserServiceImpl&) = delete;
-    UserServiceImpl& operator=(const UserServiceImpl&) = delete;
 };

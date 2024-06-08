@@ -9,17 +9,16 @@ class User {
 private:
     std::string name;
     std::string password;
-    double rate;
+    int winner;
     int battleTimes;
     std::vector<std::string> medals;
     std::vector<Sprite> sprites;
 public:
-    User(std::string name, std::string password, double rate = 0);
+    User(std::string name, std::string password, int winner = 0, int battleTimes = 0);
     void showInfo() const;
     std::string getName() const;
     std::string getPassword() const;
     double getRate() const;
-    void setRate(double rate);
     void setPassword(std::string newPassword);
     void setName(std::string newName);
     void setSprites(std::vector<Sprite> sprites);
@@ -33,4 +32,7 @@ public:
     static std::shared_ptr<User> fromJson(const nlohmann::json& j);
     void setBattleTimes(int battleTimes);
     int getBattleTimes() const;
+    void addWinner();
+    int getWinner() const;
+    void addBattleTimes();
 };

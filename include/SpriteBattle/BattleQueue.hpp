@@ -14,6 +14,9 @@ private:
         reqQueue.shutdownQueue();
     }
 public:
+    // 删除拷贝构造函数和赋值运算符
+    RequestQueue(const RequestQueue&) = delete;
+    RequestQueue& operator=(const RequestQueue&) = delete;
     void enqueue(const BattleRequest& request){
         reqQueue.enqueue(request);
     }
@@ -37,6 +40,9 @@ private:
         resultQueue.shutdownQueue();
     }
 public:
+    // 删除拷贝构造函数和赋值运算符
+    ResultQueue(const ResultQueue&) = delete;
+    ResultQueue& operator=(const ResultQueue&) = delete;
     void enqueue(const std::pair<BattleRequest, BattleResult>& result){
         resultQueue.enqueue(result);
     }

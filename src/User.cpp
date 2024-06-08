@@ -1,7 +1,7 @@
 #include "SpriteServer/pojo/User.hpp"
 
-User::User(std::string name, std::string password, double rate)
-    : name(name), password(password), rate(rate)
+User::User(std::string name, std::string password, int winner, int battleTimes)
+    : name(name), password(password), winner(winner), battleTimes(battleTimes)
 {
 }
 
@@ -10,7 +10,7 @@ void User::showInfo() const
     std::cout << "Name: " << name << std::endl;
     std::cout << "Password: " << password << std::endl;
     std::cout << "Battle Times: " << battleTimes << std::endl;
-    std::cout << "Rate: " << rate << std::endl;
+    std::cout << "Winner: " << winner << std::endl;
     std::cout << "Medals: ";
     for (auto medal : medals)
     {
@@ -38,11 +38,7 @@ std::string User::getPassword() const {
 }
 
 double User::getRate() const {
-    return rate;
-}
-
-void User::setRate(double rate) {
-    this->rate = rate;
+    return winner * 1.0 / battleTimes;
 }
 
 void User::setPassword(std::string newPassword) {
@@ -85,7 +81,7 @@ nlohmann::json User::toJson(const User &user) {
     j["name"] = user.name;
     j["password"] = user.password;
     j["battleTimes"] = user.battleTimes;
-    j["rate"] = user.rate;
+    j["winner"] = user.winner;
     j["medals"] = user.medals;
     j["sprites"] = nlohmann::json::array();
     for (auto sprite : user.sprites) {
@@ -126,4 +122,17 @@ void User::setBattleTimes(int battleTimes) {
 
 int User::getBattleTimes() const {
     return battleTimes;
+}
+
+void User::addWinner() {
+    winner++;
+    battleTimes++;
+}
+
+int User::getWinner() const {
+    return winner;
+}
+
+void User::addBattleTimes() {
+    battleTimes++;
 }

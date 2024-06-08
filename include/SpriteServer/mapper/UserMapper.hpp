@@ -17,7 +17,8 @@ private:
         session << "CREATE TABLE IF NOT EXISTS user ("
                    "name VARCHAR(100) PRIMARY KEY,"
                    "password VARCHAR(100),"
-                   "rate DOUBLE,"
+                   "winner INT,"
+                   "battle_times INT,"
                    "online BOOL DEFAULT FALSE"
                    ")", Poco::Data::Keywords::now;
 
@@ -36,37 +37,36 @@ public:
     std::shared_ptr<User> getUserByName(const std::string& name) {
         Poco::Data::Session session(pool->get());
         std::string password;
-        double rate = 0;
+        int winners = 0;
+        int battleTimes = 0;
 
         Poco::Data::Statement select(session);
-        select << "SELECT password, rate FROM user WHERE name = ?",
+        select << "SELECT password, winners, battle_times, FROM user WHERE name = ?",
                 Poco::Data::Keywords::into(password),
-                Poco::Data::Keywords::into(rate),
+                Poco::Data::Keywords::into(winners),
+                Poco::Data::Keywords::into(battleTimes),
                 Poco::Data::Keywords::useRef(name),
                 Poco::Data::Keywords::now;
 
-        if (!password.empty()) {
-            auto user = std::make_shared<User>(name, password, rate);
-            auto medals = getMedalsByName(name);
-            for (const auto& medal : medals) {
-                user->addMedal(medal);
-            }
-            return user;
+        if (password.empty()) {
+            return nullptr;
         }
-        return nullptr;
+        return std::make_shared<User>(name, password, winners, battleTimes);
     }
 
     void addUser(const User& user) {
         Poco::Data::Session session(pool->get());
         std::string name = user.getName();
         std::string password = user.getPassword();
-        double rate = user.getRate();
+        int winner = user.getWinner();
+        int battleTimes = user.getBattleTimes();
 
         Poco::Data::Statement insert(session);
-        insert << "INSERT INTO user (name, password, rate) VALUES (?, ?, ?)",
+        insert << "INSERT INTO user (name, password, winner, battle_times) VALUES (?, ?, ?)",
                 Poco::Data::Keywords::useRef(name),
                 Poco::Data::Keywords::useRef(password),
-                Poco::Data::Keywords::use(rate),
+                Poco::Data::Keywords::use(winner),
+                Poco::Data::Keywords::use(battleTimes),
                 Poco::Data::Keywords::now;
     }
 
@@ -74,12 +74,14 @@ public:
         Poco::Data::Session session(pool->get());
         std::string name = user.getName();
         std::string password = user.getPassword();
-        double rate = user.getRate();
+        int winner = user.getWinner();
+        int battleTimes = user.getBattleTimes();
 
         Poco::Data::Statement update(session);
-        update << "UPDATE user SET password = ?, rate = ? WHERE name = ?",
+        update << "UPDATE user SET password = ?, winner = ?, battle_times = ?, WHERE name = ?",
                 Poco::Data::Keywords::useRef(password),
-                Poco::Data::Keywords::use(rate),
+                Poco::Data::Keywords::use(winner),
+                Poco::Data::Keywords::use(battleTimes),
                 Poco::Data::Keywords::useRef(name),
                 Poco::Data::Keywords::now;
     }
@@ -109,4 +111,47 @@ public:
                 Poco::Data::Keywords::useRef(medal),
                 Poco::Data::Keywords::now;
     }
+
+    void setOnline(const std::string& name, bool online) {
+        Poco::Data::Session session(pool->get());
+
+        Poco::Data::Statement update(session);
+        update << "UPDATE user SET online = ? WHERE name = ?",
+                Poco::Data::Keywords::use(online),
+                Poco::Data::Keywords::useRef(name),
+                Poco::Data::Keywords::now;
+    }
+
+    std::vector<std::shared_ptr<User>> getOnlineUsers() {
+        Poco::Data::Session session(pool->get());
+        std::vector<std::shared_ptr<User>> users;
+
+        try {
+            Poco::Data::Statement select(session);
+            select << "SELECT name, password, winners, battle_times FROM user WHERE online = TRUE",
+                    Poco::Data::Keywords::now;
+
+            Poco::Data::RecordSet rs(select);
+            bool more = rs.moveFirst();
+
+            while (more) {
+                std::string name = rs[0].convert<std::string>();
+                std::string password = rs[1].convert<std::string>();
+                int winners = rs[2].convert<int>();
+                int battleTimes = rs[3].convert<int>();
+
+                auto user = std::make_shared<User>(name, password, winners, battleTimes);
+                users.push_back(user);
+
+                more = rs.moveNext();
+            }
+        } catch (const Poco::Exception& e) {
+            std::cerr << "Error retrieving online users: " << e.displayText() << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Error retrieving online users: " << e.what() << std::endl;
+        }
+
+        return users;
+    }
+
 };

@@ -54,6 +54,10 @@ private:
 public:
     std::shared_ptr<spdlog::logger> logger;
 
+    // 删除拷贝构造函数和赋值运算符
+    BattleController(const BattleController&) = delete;
+    BattleController& operator=(const BattleController&) = delete;
+
     static BattleController& getInstance(){
         static BattleController instance;
         return instance;

@@ -25,7 +25,9 @@ public:
             return HttpController::getInstance().handleLogin(ctx);
         });
     }
-
+    // 删除拷贝构造函数和赋值运算符
+    HttpController(const HttpController&) = delete;
+    HttpController& operator=(const HttpController&) = delete;
 private:
     UserService* userService;
     SpriteService* spriteService;
@@ -50,6 +52,9 @@ private:
         logger->info("Get user: {}", ctx->param("name"));
         auto name = ctx->param("name");
         auto user = userService->getUser(name);
+        if (user == nullptr) {
+            return ctx->send("User not found");
+        }
         auto sprites = spriteService->getSprites(name);
         user->setSprites(sprites);
         auto userStr = User::toJson(*user).dump();
