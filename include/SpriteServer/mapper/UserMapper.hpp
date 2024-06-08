@@ -153,4 +153,36 @@ public:
 
         return users;
     }
+
+    std::vector<std::shared_ptr<User>> getAllUsers() {
+        Poco::Data::Session session(pool->get());
+        std::vector<std::shared_ptr<User>> users;
+
+        try {
+            Poco::Data::Statement select(session);
+            select << "SELECT name, password, winner, battle_times FROM user",
+                    Poco::Data::Keywords::now;
+
+            Poco::Data::RecordSet rs(select);
+            bool more = rs.moveFirst();
+
+            while (more) {
+                std::string name = rs[0].convert<std::string>();
+                std::string password = rs[1].convert<std::string>();
+                int winner = rs[2].convert<int>();
+                int battleTimes = rs[3].convert<int>();
+
+                auto user = std::make_shared<User>(name, password, winner, battleTimes);
+                users.push_back(user);
+
+                more = rs.moveNext();
+            }
+        } catch (const Poco::Exception& e) {
+            std::cerr << "Error retrieving all users: " << e.displayText() << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Error retrieving all users: " << e.what() << std::endl;
+        }
+
+        return users;
+    }
 };

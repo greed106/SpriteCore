@@ -60,20 +60,27 @@ public:
         userMapper.setOnline(name, online);
     }
 
-    std::vector<std::shared_ptr<User>> getOnlineUsers() override {
+    std::vector<std::string> getOnlineUserNames() override {
         auto users = userMapper.getOnlineUsers();
-        for(auto& user : users) {
-            auto medals = userMapper.getMedalsByName(user->getName());
-            for(auto& medal : medals) {
-                user->addMedal(medal);
-            }
+        std::vector<std::string> names;
+        for(const auto& user : users){
+            names.push_back(user->getName());
         }
-        return users;
+        return names;
     }
 
     bool isUserNameExist(const std::string& username) override {
         auto user = userMapper.getUserByName(username);
         return user != nullptr;
+    }
+
+    std::vector<std::string> getAllUserNames() override{
+        auto users = userMapper.getAllUsers();
+        std::vector<std::string> userNames;
+        for(auto& user : users) {
+            userNames.push_back(user->getName());
+        }
+        return userNames;
     }
 private:
     UserMapper& userMapper;

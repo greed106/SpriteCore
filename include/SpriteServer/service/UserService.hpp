@@ -19,6 +19,7 @@ public:
     virtual void addWinner(const std::string& name) = 0;
     virtual void addBattleTimes(const std::string& name) = 0;
     virtual void setOnline(const std::string& name, bool online) = 0;
-    virtual std::vector<std::shared_ptr<User>> getOnlineUsers() = 0;
+    virtual std::vector<std::string> getOnlineUserNames() = 0;
     virtual bool isUserNameExist(const std::string& username) = 0;
+    virtual std::vector<std::string> getAllUserNames() = 0;
 };

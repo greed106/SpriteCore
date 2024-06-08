@@ -27,6 +27,15 @@ public:
         router.POST("/register", [](const HttpContextPtr& ctx){
             return HttpController::getInstance().handleRegister(ctx);
         });
+        router.GET("/all_user", [](const HttpContextPtr& ctx) {
+            return HttpController::getInstance().handleGetAllUserNames(ctx);
+        });
+        router.GET("/online_user", [](const HttpContextPtr& ctx) {
+            return HttpController::getInstance().handleGetOnlineUserNames(ctx);
+        });
+        router.GET("/exit", [](const HttpContextPtr& ctx) {
+            return HttpController::getInstance().handleExit(ctx);
+        });
     }
     // 删除拷贝构造函数和赋值运算符
     HttpController(const HttpController&) = delete;
@@ -74,7 +83,11 @@ private:
              username, password);
 
         hv::Json resp;
-        resp["valid"] = userService->login(username, password);
+        auto validLogin = userService->login(username, password);
+        resp["valid"] = validLogin;
+        if(validLogin){
+            userService->setOnline(username, true);
+        }
         return ctx->send(resp.dump());
     }
 
@@ -96,6 +109,31 @@ private:
                 spriteService->addSprite(username, *sprite);
             }
         }
+        return ctx->send(resp.dump());
+    }
+
+    int handleGetAllUserNames(const HttpContextPtr& ctx){
+        logger->info("Get all usernames");
+        auto names = userService->getAllUserNames();
+        hv::Json resp;
+        resp["names"] = names;
+        return ctx->send(resp.dump());
+    }
+
+    int handleGetOnlineUserNames(const HttpContextPtr& ctx){
+        logger->info("Get online usernames");
+        auto names = userService->getOnlineUserNames();
+        hv::Json resp;
+        resp["names"] = names;
+        return ctx->send(resp.dump());
+    }
+
+    int handleExit(const HttpContextPtr& ctx){
+        auto name = ctx->param("name");
+        logger->info("Exit: {}", name);
+        userService->setOnline(name, false);
+        hv::Json resp;
+        resp["valid"] = true;
         return ctx->send(resp.dump());
     }
 };
