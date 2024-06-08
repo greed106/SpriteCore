@@ -6,6 +6,7 @@ int main() {
     int port = 8080;
     hv::HttpService router;
     HttpController::registerRoutes(router);
+    BattleController::registerRoutes(router);
     hv::WebSocketService ws;
     BattleController::registerWebSocketService(ws);
 

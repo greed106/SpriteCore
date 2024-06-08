@@ -50,6 +50,8 @@ private:
         if(resultThread.joinable()){
             resultThread.join();
         }
+
+        spdlog::drop("BattleController");
     }
     std::string getNewPrisonerName(const std::string& username, const std::string& name){
         auto newName = name;
@@ -58,21 +60,25 @@ private:
         }
         return newName;
     }
+    void handleSpriteLevelUp(const BattleRequest& req, const BattleResult& res){
+        auto challenger = req.getChallenger().toSprite();
+        auto isWinner = req.getUsername() == res.getWinner();
+        challenger->addExp(isWinner ? res.getWinnerExp() : res.getLoserExp());
+        if(isWinner){
+            userService->addWinner(req.getUsername());
+        }else{
+            userService->addBattleTimes(req.getUsername());
+        }
+        spriteService->updateSprite(req.getUsername(), *challenger);
+    }
     void handleSpriteChange(BattleRequest& req, BattleResult& res){
         // TODO: 同样存在数据一致性问题，数据库中的信息最后会被更新为用户指定的参数
         auto challenger = req.getChallenger().toSprite();
         auto prisonerName = req.getPrisoner().getSpriteName();
 
         // 根据战斗结果修改对应数据
-        if(req.getUsername() == res.getWinner()){
-            challenger->addExp(res.getWinnerExp());
-            spriteService->updateSprite(req.getUsername(), *challenger);
-            userService->addWinner(req.getUsername());
-        }else{
-            challenger->addExp(res.getLoserExp());
-            spriteService->updateSprite(req.getUsername(), *challenger);
-            userService->addBattleTimes(req.getUsername());
-
+        handleSpriteLevelUp(req, res);
+        if(req.getUsername() != res.getWinner()){
             auto newName = getNewPrisonerName(req.getUsername(), prisonerName);
             auto prisoner = spriteService->getSprite(res.getLoser(), prisonerName);
             prisoner->setSpriteName(newName);
@@ -85,6 +91,12 @@ private:
             auto sprite = Factory::createRandomSprite("RandomSprite");
             spriteService->addSprite(req.getUsername(), *sprite);
         }
+    }
+    BattleRequest getComputerBattleRequest(const BattleRequest& userReq){
+        auto s = spriteService->getSprite(getComputerName(), userReq.getOpponentName());
+        JsonSprite prisoner(*s);
+        BattleRequest computerRequest(getComputerName(), prisoner, prisoner, true, userReq.getUsername());
+        return computerRequest;
     }
 public:
     std::shared_ptr<spdlog::logger> logger;
@@ -105,7 +117,7 @@ public:
     void handleBattleRequest(const std::string &msg, const WebSocketChannelPtr& channel) {
         auto j = nlohmann::json::parse(msg);
         auto request = j.get<BattleRequest>();
-
+        logger->info("Handling battle request from {}", request.getUsername());
         clients[request.getUsername()] = channel;
 
         if(!request.getIsComputer()){
@@ -116,8 +128,7 @@ public:
             auto result = battleService->battleWithComputer(request, computerNode);
             resultQueue.enqueue({request, result});
 
-            JsonSprite prisoner(*s);
-            BattleRequest computerRequest(getComputerName(), prisoner, prisoner, true, request.getUsername());
+            auto computerRequest = getComputerBattleRequest(request);
             resultQueue.enqueue({computerRequest, result});
         }
     }
@@ -141,5 +152,20 @@ public:
             client->close();
             clients.erase(req.getUsername());
         }
+    }
+    int handleLevelUpBattle(const HttpContextPtr& ctx){
+        auto j = nlohmann::json::parse(ctx->body());
+        auto req = j.get<BattleRequest>();
+        auto res = battleService->battleWithComputer(req, BattleNode(getComputerName(), *spriteService->getSprite(getComputerName(), req.getOpponentName())));
+        auto computerReq = getComputerBattleRequest(req);
+        handleSpriteLevelUp(req, res);
+        handleSpriteLevelUp(computerReq, res);
+
+        return ctx->send(nlohmann::json(res).dump());
+    }
+    static void registerRoutes(hv::HttpService& router){
+        router.POST("/battle", [](const HttpContextPtr& ctx){
+            return BattleController::getInstance().handleLevelUpBattle(ctx);
+        });
     }
 };
