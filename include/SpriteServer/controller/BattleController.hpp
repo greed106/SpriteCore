@@ -64,12 +64,15 @@ private:
         auto challenger = req.getChallenger().toSprite();
         auto isWinner = req.getUsername() == res.getWinner();
         challenger->addExp(isWinner ? res.getWinnerExp() : res.getLoserExp());
-        if(isWinner){
-            userService->addWinner(req.getUsername());
-        }else{
-            userService->addBattleTimes(req.getUsername());
-        }
+
         spriteService->updateSprite(req.getUsername(), *challenger);
+    }
+    void handleUserRate(const std::string& username, bool isWinner){
+        if(isWinner){
+            userService->addWinner(username);
+        }else{
+            userService->addBattleTimes(username);
+        }
     }
     void handleSpriteChange(BattleRequest& req, BattleResult& res){
         // TODO: 同样存在数据一致性问题，数据库中的信息最后会被更新为用户指定的参数
@@ -77,8 +80,10 @@ private:
         auto prisonerName = req.getPrisoner().getSpriteName();
 
         // 根据战斗结果修改对应数据
+        auto isWinner = req.getUsername() == res.getWinner();
         handleSpriteLevelUp(req, res);
-        if(req.getUsername() != res.getWinner()){
+        handleUserRate(req.getUsername(), isWinner);
+        if(isWinner){
             auto newName = getNewPrisonerName(req.getUsername(), prisonerName);
             auto prisoner = spriteService->getSprite(res.getLoser(), prisonerName);
             prisoner->setSpriteName(newName);
@@ -97,22 +102,6 @@ private:
         JsonSprite prisoner(*s);
         BattleRequest computerRequest(getComputerName(), prisoner, prisoner, true, userReq.getUsername());
         return computerRequest;
-    }
-public:
-    std::shared_ptr<spdlog::logger> logger;
-
-    // 删除拷贝构造函数和赋值运算符
-    BattleController(const BattleController&) = delete;
-    BattleController& operator=(const BattleController&) = delete;
-
-    static BattleController& getInstance(){
-        static BattleController instance;
-        return instance;
-    }
-    static void registerWebSocketService(hv::WebSocketService& ws){
-        ws.onopen = onopen;
-        ws.onmessage = onmessage;
-        ws.onclose = onclose;
     }
     void handleBattleRequest(const std::string &msg, const WebSocketChannelPtr& channel) {
         auto j = nlohmann::json::parse(msg);
@@ -158,10 +147,29 @@ public:
         auto req = j.get<BattleRequest>();
         auto res = battleService->battleWithComputer(req, BattleNode(getComputerName(), *spriteService->getSprite(getComputerName(), req.getOpponentName())));
         auto computerReq = getComputerBattleRequest(req);
+        auto isWinner = req.getUsername() == res.getWinner();
         handleSpriteLevelUp(req, res);
         handleSpriteLevelUp(computerReq, res);
+        handleUserRate(req.getUsername(), isWinner);
+        handleUserRate(computerReq.getUsername(), !isWinner);
 
         return ctx->send(nlohmann::json(res).dump());
+    }
+public:
+    std::shared_ptr<spdlog::logger> logger;
+
+    // 删除拷贝构造函数和赋值运算符
+    BattleController(const BattleController&) = delete;
+    BattleController& operator=(const BattleController&) = delete;
+
+    static BattleController& getInstance(){
+        static BattleController instance;
+        return instance;
+    }
+    static void registerWebSocketService(hv::WebSocketService& ws){
+        ws.onopen = onopen;
+        ws.onmessage = onmessage;
+        ws.onclose = onclose;
     }
     static void registerRoutes(hv::HttpService& router){
         router.POST("/battle", [](const HttpContextPtr& ctx){
