@@ -34,11 +34,9 @@ int main() {
 //#include "SpriteServer/pojo/JsonSprite.hpp"
 //
 //int main() {
-//    JsonSprite sprite("class Primeape", "monkey");
-//    BattleRequest req("ymj", sprite, sprite, false, "opponent");
-//
-//    nlohmann::json j = req;
-//    std::cout << j.dump(2) << std::endl;
-//
+//    Mapper::initializePool("host=localhost;user=root;password=ZHYzhy.0310;port=3306;db=sprite_server");
+//    auto& spriteService = SpriteServiceImpl::getInstance();
+//    auto v = spriteService.getSprites("zhy");
+//    std::cout << v.size() << std::endl;
 //    return 0;
 //}

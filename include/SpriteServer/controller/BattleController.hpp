@@ -51,6 +51,41 @@ private:
             resultThread.join();
         }
     }
+    std::string getNewPrisonerName(const std::string& username, const std::string& name){
+        auto newName = name;
+        while(spriteService->isSpriteExist(username, newName)){
+            newName.append("_COPY");
+        }
+        return newName;
+    }
+    void handleSpriteChange(BattleRequest& req, BattleResult& res){
+        // TODO: 同样存在数据一致性问题，数据库中的信息最后会被更新为用户指定的参数
+        auto challenger = req.getChallenger().toSprite();
+        auto prisonerName = req.getPrisoner().getSpriteName();
+
+        // 根据战斗结果修改对应数据
+        if(req.getUsername() == res.getWinner()){
+            challenger->addExp(res.getWinnerExp());
+            spriteService->updateSprite(req.getUsername(), *challenger);
+            userService->addWinner(req.getUsername());
+        }else{
+            challenger->addExp(res.getLoserExp());
+            spriteService->updateSprite(req.getUsername(), *challenger);
+            userService->addBattleTimes(req.getUsername());
+
+            auto newName = getNewPrisonerName(req.getUsername(), prisonerName);
+            auto prisoner = spriteService->getSprite(res.getLoser(), prisonerName);
+            prisoner->setSpriteName(newName);
+
+            spriteService->removeSprite(res.getLoser(), prisonerName);
+            spriteService->addSprite(res.getWinner(), *prisoner);
+        }
+
+        if(spriteService->getSprites(req.getUsername()).size() == 0){
+            auto sprite = Factory::createRandomSprite("RandomSprite");
+            spriteService->addSprite(req.getUsername(), *sprite);
+        }
+    }
 public:
     std::shared_ptr<spdlog::logger> logger;
 
@@ -94,32 +129,7 @@ public:
             }
             auto req = result.value().first;
             auto res = result.value().second;
-            // TODO: 同样存在数据一致性问题，数据库中的信息最后会被更新为用户指定的参数
-            auto challenger = req.getChallenger().toSprite();
-            auto prisonerName = req.getPrisoner().getSpriteName();
-
-            // 根据战斗结果修改对应数据
-            if(req.getUsername() == res.getWinner()){
-                challenger->addExp(res.getWinnerExp());
-                spriteService->updateSprite(req.getUsername(), *challenger);
-                userService->addWinner(req.getUsername());
-            }else{
-                challenger->addExp(res.getLoserExp());
-                spriteService->updateSprite(req.getUsername(), *challenger);
-                userService->addBattleTimes(req.getUsername());
-
-                auto newName = prisonerName;
-                while(spriteService->isSpriteExist(
-                        res.getWinner(), newName))
-                {
-                    newName.append("_COPY");
-                }
-
-                auto prisoner = spriteService->getSprite(res.getLoser(), prisonerName);
-                prisoner->setSpriteName(newName);
-                spriteService->removeSprite(res.getLoser(), prisonerName);
-                spriteService->addSprite(res.getWinner(), *prisoner);
-            }
+            handleSpriteChange(req, res);
 
             if(req.getUsername() == getComputerName() && req.getIsComputer()){
                 continue;
