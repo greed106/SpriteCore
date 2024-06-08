@@ -94,6 +94,7 @@ public:
             }
             auto req = result.value().first;
             auto res = result.value().second;
+            // TODO: 同样存在数据一致性问题，数据库中的信息最后会被更新为用户指定的参数
             auto challenger = req.getChallenger().toSprite();
             auto prisonerName = req.getPrisoner().getSpriteName();
 
@@ -101,9 +102,11 @@ public:
             if(req.getUsername() == res.getWinner()){
                 challenger->addExp(res.getWinnerExp());
                 spriteService->updateSprite(req.getUsername(), *challenger);
+                userService->addWinner(req.getUsername());
             }else{
                 challenger->addExp(res.getLoserExp());
                 spriteService->updateSprite(req.getUsername(), *challenger);
+                userService->addBattleTimes(req.getUsername());
 
                 auto newName = prisonerName;
                 while(spriteService->isSpriteExist(

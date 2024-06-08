@@ -37,13 +37,13 @@ public:
     std::shared_ptr<User> getUserByName(const std::string& name) {
         Poco::Data::Session session(pool->get());
         std::string password;
-        int winners = 0;
+        int winner = 0;
         int battleTimes = 0;
 
         Poco::Data::Statement select(session);
-        select << "SELECT password, winners, battle_times, FROM user WHERE name = ?",
+        select << "SELECT password, winner, battle_times FROM user WHERE name = ?",
                 Poco::Data::Keywords::into(password),
-                Poco::Data::Keywords::into(winners),
+                Poco::Data::Keywords::into(winner),
                 Poco::Data::Keywords::into(battleTimes),
                 Poco::Data::Keywords::useRef(name),
                 Poco::Data::Keywords::now;
@@ -51,7 +51,7 @@ public:
         if (password.empty()) {
             return nullptr;
         }
-        return std::make_shared<User>(name, password, winners, battleTimes);
+        return std::make_shared<User>(name, password, winner, battleTimes);
     }
 
     void addUser(const User& user) {
@@ -62,7 +62,7 @@ public:
         int battleTimes = user.getBattleTimes();
 
         Poco::Data::Statement insert(session);
-        insert << "INSERT INTO user (name, password, winner, battle_times) VALUES (?, ?, ?)",
+        insert << "INSERT INTO user (name, password, winner, battle_times) VALUES (?, ?, ?, ?)",
                 Poco::Data::Keywords::useRef(name),
                 Poco::Data::Keywords::useRef(password),
                 Poco::Data::Keywords::use(winner),
@@ -78,7 +78,7 @@ public:
         int battleTimes = user.getBattleTimes();
 
         Poco::Data::Statement update(session);
-        update << "UPDATE user SET password = ?, winner = ?, battle_times = ?, WHERE name = ?",
+        update << "UPDATE user SET password = ?, winner = ?, battle_times = ? WHERE name = ?",
                 Poco::Data::Keywords::useRef(password),
                 Poco::Data::Keywords::use(winner),
                 Poco::Data::Keywords::use(battleTimes),
@@ -128,7 +128,7 @@ public:
 
         try {
             Poco::Data::Statement select(session);
-            select << "SELECT name, password, winners, battle_times FROM user WHERE online = TRUE",
+            select << "SELECT name, password, winner, battle_times FROM user WHERE online = TRUE",
                     Poco::Data::Keywords::now;
 
             Poco::Data::RecordSet rs(select);
@@ -137,10 +137,10 @@ public:
             while (more) {
                 std::string name = rs[0].convert<std::string>();
                 std::string password = rs[1].convert<std::string>();
-                int winners = rs[2].convert<int>();
+                int winner = rs[2].convert<int>();
                 int battleTimes = rs[3].convert<int>();
 
-                auto user = std::make_shared<User>(name, password, winners, battleTimes);
+                auto user = std::make_shared<User>(name, password, winner, battleTimes);
                 users.push_back(user);
 
                 more = rs.moveNext();
@@ -153,5 +153,4 @@ public:
 
         return users;
     }
-
 };

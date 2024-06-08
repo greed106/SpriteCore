@@ -32,6 +32,7 @@ public:
 
     BattleResult battleWithComputer(const BattleRequest &request, const BattleNode &computer) override {
         auto username = request.getUsername();
+        // TODO: 存在数据一致性问题，如果用户请求中的精灵参数和数据库中的不一致，会导致战斗结果不准确
         auto challenger = *(request.getChallenger().toSprite());
         return SpriteBattle::battle({username, challenger}, computer);
     }
@@ -47,7 +48,7 @@ public:
                 reqQueue.enqueue(req1.value());
                 continue;
             }
-
+            // TODO: 存在数据一致性问题，如果用户请求中的精灵参数和数据库中的不一致，会导致战斗结果不准确
             auto challenger = req1.value().getChallenger().toSprite();
             auto challengerName = req1.value().getUsername();
             auto opponent = req2.value().getChallenger().toSprite();

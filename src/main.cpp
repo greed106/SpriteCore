@@ -15,7 +15,7 @@ int main() {
     server.registerWebSocketService(&ws);
 
     server.run(false);
-
+    std::cout << "Server started at port " << port << std::endl;
     std::string str;
     while(true){
         std::cin >> str;
