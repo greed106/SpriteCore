@@ -65,6 +65,7 @@ private:
         auto name = ctx->param("name");
         auto user = userService->getUser(name);
         if (user == nullptr) {
+            ctx->setStatus(HTTP_STATUS_NOT_FOUND);
             return ctx->send("User not found");
         }
         auto sprites = spriteService->getSprites(name);
