@@ -4,14 +4,9 @@
     "libmysql",
     "spdlog",
     {
-      "name": "soci",
-      "features": ["mysql"]
-    },
-    {
       "name": "poco",
       "features": ["mysql"]
     },
-    "nlohmann-json",
-    "bext-sml"
+    "nlohmann-json"
   ]
 }
