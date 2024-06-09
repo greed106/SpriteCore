@@ -23,7 +23,15 @@ public:
     // 移动赋值运算符
     Sprite& operator=(Sprite &&sprite) noexcept;
     std::string getSpriteName() const;
-    static nlohmann::json toJson(const Sprite& sprite);
+    static nlohmann::json toJson(const Sprite& sprite){
+        nlohmann::json j = {
+                {"type", typeid(*(sprite.stirps)).name()},
+                {"spriteName", sprite.spriteName},
+                {"level", sprite.level.getLevel()},
+                {"exp", sprite.level.getExp()},
+        };
+        return j;
+    }
     static std::shared_ptr<Sprite> fromJson(const nlohmann::json& j);
     std::shared_ptr<Type> getType() const;
     Buff getBuff() const;

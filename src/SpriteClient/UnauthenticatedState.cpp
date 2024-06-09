@@ -6,7 +6,6 @@ UnauthenticatedState::UnauthenticatedState() {
     commands["login"] = [](Context& context) {
         auto username = inputStr("username: ");
         auto password = inputStr("password: ");
-        context.setUsername(username);
         auto url = context.getBaseUrl() + "/login";
 
         hv::Json json;
@@ -20,6 +19,7 @@ UnauthenticatedState::UnauthenticatedState() {
             State::logger->info("Logged in as {} successfully", username);
             context.setState(std::make_shared<AuthenticatedState>());
             context.setExit(false);
+            context.setUsername(username);
         }
     };
     commands["exit"] = [](Context& context) {
@@ -44,6 +44,7 @@ UnauthenticatedState::UnauthenticatedState() {
             State::logger->info("Registered as {} successfully", username);
             context.setState(std::make_shared<AuthenticatedState>());
             context.setExit(false);
+            context.setUsername(username);
         }
     };
 }

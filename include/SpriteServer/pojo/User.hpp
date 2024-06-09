@@ -5,6 +5,11 @@
 #include <vector>
 #include "SpriteCore/Sprite.hpp"
 #include "nlohmann/json.hpp"
+#include "JsonSprite.hpp"
+#include <fmt/core.h>
+#include <fmt/color.h>
+#include <random>
+#include <algorithm>
 
 class User {
 private:
@@ -20,18 +25,21 @@ public:
             : name(name), password(password), winner(winner), battleTimes(battleTimes) {}
 
     void showInfo() const {
-        std::cout << "Name: " << name << std::endl;
-        std::cout << "Password: " << password << std::endl;
-        std::cout << "Battle Times: " << battleTimes << std::endl;
-        std::cout << "Winner: " << winner << std::endl;
-        std::cout << "Medals: ";
-        for (auto medal : medals) {
-            std::cout << medal << " ";
+        fmt::print(fmt::fg(fmt::color::cyan) | fmt::emphasis::bold, "User Information:\n");
+        fmt::print(fmt::fg(fmt::color::yellow), "Name: {}\n", name);
+//        fmt::print(fmt::fg(fmt::color::yellow), "Password: {}\n", password);
+        fmt::print(fmt::fg(fmt::color::yellow), "Battle Times: {}\n", battleTimes);
+        fmt::print(fmt::fg(fmt::color::yellow), "Winner: {}\n", winner);
+        fmt::print(fmt::fg(fmt::color::yellow), "Win Rate: {:.2f}%\n", getRate() * 100);
+
+        fmt::print(fmt::fg(fmt::color::cyan) | fmt::emphasis::bold, "Medals:\n");
+        for (const auto& medal : medals) {
+            fmt::print(fmt::fg(fmt::color::green), "  - {}\n", medal);
         }
-        std::cout << std::endl;
-        std::cout << "Sprites: " << std::endl;
-        for (auto sprite : sprites) {
-            sprite.showInfo();
+
+        fmt::print(fmt::fg(fmt::color::cyan) | fmt::emphasis::bold, "Sprites:\n");
+        for (const auto& sprite : sprites) {
+            sprite.showInfo();  // Assuming sprite.showInfo() also uses fmt for output
         }
     }
 
@@ -92,7 +100,8 @@ public:
         j["medals"] = user.medals;
         j["sprites"] = nlohmann::json::array();
         for (auto sprite : user.sprites) {
-            j["sprites"].push_back(Sprite::toJson(sprite));
+            nlohmann::json jsonSprite = JsonSprite(sprite);
+            j["sprites"].push_back(jsonSprite);
         }
         return j;
     }
@@ -104,8 +113,8 @@ public:
         int winner = j["winner"];
         std::vector<std::string> medals = j["medals"];
         std::vector<Sprite> sprites;
-        for (auto sprite : j["sprites"]) {
-            sprites.push_back(*Sprite::fromJson(sprite));
+        for (const auto& sprite : j["sprites"]) {
+            sprites.push_back(*sprite.get<JsonSprite>().toSprite());
         }
         auto user = std::make_shared<User>(name, password, winner, battleTimes);
         user->setMedals(medals);
@@ -140,5 +149,44 @@ public:
 
     void addBattleTimes() {
         battleTimes++;
+    }
+
+    void showSpriteInfo() const{
+        for (const auto& sprite : sprites) {
+            JsonSprite(sprite).showInfo();
+        }
+    }
+
+    std::shared_ptr<JsonSprite> getSprite(const std::string& spriteName) const {
+        for (const auto& sprite : sprites) {
+            if (sprite.getSpriteName() == spriteName) {
+                return std::make_shared<JsonSprite>(sprite);
+            }
+        }
+        return nullptr;
+    }
+
+    std::vector<JsonSprite> getRandomSprites(int size = 3){
+        std::vector<JsonSprite> randomSprites;
+        for (const auto& sprite : sprites) {
+            randomSprites.push_back(JsonSprite(sprite));
+        }
+        // 将精灵随机排序
+        std::default_random_engine rng(unsigned(std::time(0)));
+        std::shuffle(randomSprites.begin(), randomSprites.end(), rng);
+        randomSprites.resize(size < randomSprites.size() ? size : randomSprites.size());
+        return randomSprites;
+    }
+
+    std::vector<std::string> getRandomSpriteNames(int size = 3){
+        std::vector<std::string> randomSpriteNames;
+        for (const auto& sprite : sprites) {
+            randomSpriteNames.push_back(sprite.getSpriteName());
+        }
+        // 将精灵名字随机排序
+        std::default_random_engine rng(unsigned(std::time(0)));
+        std::shuffle(randomSpriteNames.begin(), randomSpriteNames.end(), rng);
+        randomSpriteNames.resize(size < randomSpriteNames.size() ? size : randomSpriteNames.size());
+        return randomSpriteNames;
     }
 };

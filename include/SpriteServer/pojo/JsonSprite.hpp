@@ -3,6 +3,8 @@
 #include <string>
 #include <nlohmann/json.hpp>
 #include "SpriteCore/Factory.hpp"
+#include <fmt/core.h>
+#include <fmt/color.h>
 
 class JsonSprite {
 private:
@@ -37,6 +39,14 @@ public:
 
     std::shared_ptr<Sprite> toSprite() const {
         return Factory::create(this->type, this->spriteName, this->level, this->exp);
+    }
+
+    void showInfo() const {
+        fmt::print(fmt::fg(fmt::color::cyan) | fmt::emphasis::bold, "JsonSprite Information:\n");
+        fmt::print(fmt::fg(fmt::color::yellow), "Type: {}\n", type);
+        fmt::print(fmt::fg(fmt::color::yellow), "Sprite Name: {}\n", spriteName);
+        fmt::print(fmt::fg(fmt::color::yellow), "Level: {}\n", level);
+        fmt::print(fmt::fg(fmt::color::yellow), "Exp: {}\n", exp);
     }
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(JsonSprite, type, spriteName, level, exp)

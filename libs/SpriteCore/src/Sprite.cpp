@@ -58,18 +58,10 @@ Sprite &Sprite::operator=(Sprite &&sprite) noexcept {
     return *this;
 }
 
-nlohmann::json Sprite::toJson(const Sprite& sprite) {
-    nlohmann::json j = {
-        {"type", typeid(*(sprite.stirps)).name()},
-        {"spriteName", sprite.spriteName},
-        {"level", sprite.level.getLevel()},
-        {"exp", sprite.level.getExp()},
-    };
-    return j;
-}
+//nlohmann::json Sprite::toJson(const Sprite& sprite)
 
-std::shared_ptr<Sprite> Sprite::fromJson(const nlohmann::json &j) {
-std::string type = j.at("type").get<std::string>();
+std::shared_ptr<Sprite> Sprite::fromJson(const nlohmann::json &j){
+    std::string type = j.at("type").get<std::string>();
     std::string spriteName = j.at("spriteName").get<std::string>();
     int level = j.at("level").get<int>();
     int exp = j.at("exp").get<int>();

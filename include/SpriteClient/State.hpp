@@ -46,4 +46,11 @@ public:
 protected:
     std::unordered_map<std::string, CommandHandler> commands;
     static std::shared_ptr<spdlog::logger> logger;
+
+    static std::string inputStr(const std::string& prompt){
+        std::string input;
+        std::cout << prompt;
+        std::getline(std::cin, input);
+        return input;
+    }
 };

@@ -138,7 +138,7 @@ private:
             auto client = clients[req.getUsername()];
             nlohmann::json j = res;
             client->send(j.dump());
-            client->close();
+
             clients.erase(req.getUsername());
         }
     }

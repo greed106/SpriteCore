@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <fmt/core.h>
+#include <fmt/color.h>
 
 class BattleResult {
 private:
@@ -18,14 +20,15 @@ public:
     }
     BattleResult() = default;
     void showInfo() const {
-        std::cout << "Winner: " << winner << std::endl;
-        std::cout << "Winner Exp: " << winnerExp << std::endl;
-        std::cout << "Loser: " << loser << std::endl;
-        std::cout << "Loser Exp: " << loserExp << std::endl;
-        std::cout << "Logs: " << std::endl;
-        for(const auto& log : logs)
-        {
-            std::cout << log << std::endl;
+        fmt::print(fmt::fg(fmt::color::cyan) | fmt::emphasis::bold, "Battle Information:\n");
+        fmt::print(fmt::fg(fmt::color::yellow), "Winner: {}\n", winner);
+        fmt::print(fmt::fg(fmt::color::yellow), "Winner Exp: {}\n", winnerExp);
+        fmt::print(fmt::fg(fmt::color::red), "Loser: {}\n", loser);
+        fmt::print(fmt::fg(fmt::color::red), "Loser Exp: {}\n", loserExp);
+
+        fmt::print(fmt::fg(fmt::color::green) | fmt::emphasis::bold, "Logs:\n");
+        for (const auto& log : logs) {
+            fmt::print(fmt::fg(fmt::color::white), "{}\n", log);
         }
     }
     std::string getWinner() const {
