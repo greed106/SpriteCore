@@ -35,7 +35,7 @@ endif()
 find_package(libhv CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
-find_package(SOCI CONFIG REQUIRED)
+find_package(unofficial-libmysql REQUIRED)
 find_package(Poco REQUIRED COMPONENTS Data DataMySQL)
 
 set(SPRITE_CORE_PATH 
@@ -67,7 +67,7 @@ target_link_libraries(${PROJECT_NAME}
     spdlog::spdlog_header_only
     SpriteCore::lib
     nlohmann_json::nlohmann_json
-    $<IF:$<TARGET_EXISTS:SOCI::soci_mysql>,SOCI::soci_mysql,SOCI::soci_mysql_static>
+    unofficial::libmysql::libmysql
     Poco::Data Poco::DataMySQL
 )
 
