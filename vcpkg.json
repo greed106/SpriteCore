@@ -7,6 +7,7 @@
       "name": "poco",
       "features": ["mysql"]
     },
-    "nlohmann-json"
+    "nlohmann-json",
+    "fmt"
   ]
 }

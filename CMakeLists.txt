@@ -37,6 +37,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(unofficial-libmysql REQUIRED)
 find_package(Poco REQUIRED COMPONENTS Data DataMySQL)
+find_package(fmt CONFIG REQUIRED)
 
 set(SPRITE_CORE_PATH 
     "libs/SpriteCore"
@@ -50,8 +51,11 @@ add_subdirectory(
 
 add_executable(
     ${PROJECT_NAME}
+    src/SpriteClient/AuthenticatedState.cpp
+    src/SpriteClient/UnauthenticatedState.cpp
+    src/SpriteClient/State.cpp
+    src/SpriteClient/Context.cpp
     src/main.cpp
-    src/User.cpp
 )
 
 # 设置库的公共头文件目录
@@ -69,6 +73,7 @@ target_link_libraries(${PROJECT_NAME}
     nlohmann_json::nlohmann_json
     unofficial::libmysql::libmysql
     Poco::Data Poco::DataMySQL
+    fmt::fmt-header-only
 )
 
 # 平台特定的库链接

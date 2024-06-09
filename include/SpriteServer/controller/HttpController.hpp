@@ -108,6 +108,7 @@ private:
                 auto sprite = Factory::createRandomSprite(name);
                 spriteService->addSprite(username, *sprite);
             }
+            userService->setOnline(username, true);
         }
         return ctx->send(resp.dump());
     }
