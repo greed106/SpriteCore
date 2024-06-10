@@ -3,6 +3,9 @@
 
 namespace {
     static Register<Primeape> registerPrimeape;
+    static Register<Charmander> registerCharmander;
+    static Register<Bulbasaur> registerBulbasaur;
+    static Register<Squirtle> registerSquirtle;
 }
 
 Primeape::Primeape(int level) : 
@@ -77,4 +80,103 @@ Stirps* Primeape::clone()
 
 Primeape::Primeape(Type *type, std::string stirpsName) : Stirps(type, stirpsName)
 {
+}
+
+Buff Charmander::generateBuff() const {
+    // 选择攻击/防御/速度Buff的权重
+    std::vector<double> weights = {0.3, 0.3, 0.4};
+    int index = RandomUtil::weightedRandomIndex(weights);
+    switch(index)
+    {
+        case 0:
+        {
+            double rate = RandomUtil::normalDistributedRandom(0.1, 0, 2);
+            int increase = std::round(RandomUtil::normalDistributedRandom(4, 0, 100));
+            int duration = std::round(RandomUtil::normalDistributedRandom(1, 0, 3));
+
+            return Buff(duration, rate, 0, 0, increase);
+        }
+        case 1:
+        {
+            double rate = RandomUtil::normalDistributedRandom(0.1, 0, 0.5);
+            int increase = std::round(RandomUtil::normalDistributedRandom(4, 0, 10));
+            int duration = std::round(RandomUtil::normalDistributedRandom(1, 0, 3));
+
+            return Buff(duration, 0, rate, 0, 0, increase);
+        }
+        case 2:
+        {
+            double rate = RandomUtil::normalDistributedRandom(0.1, 0, 0.3);
+            int increase = std::round(RandomUtil::normalDistributedRandom(3, 0, 6));
+            int duration = std::round(RandomUtil::normalDistributedRandom(1, 0, 3));
+
+            return Buff(duration, 0, 0, rate, 0, 0, increase);
+        }
+    }
+}
+
+Buff Bulbasaur::generateBuff() const {
+    // 选择攻击/防御/速度Buff的权重
+    std::vector<double> weights = {0.3, 0.5, 0.2};
+    int index = RandomUtil::weightedRandomIndex(weights);
+    switch(index)
+    {
+        case 0:
+        {
+            double rate = RandomUtil::normalDistributedRandom(0.1, 0, 2);
+            int increase = std::round(RandomUtil::normalDistributedRandom(4, 0, 100));
+            int duration = std::round(RandomUtil::normalDistributedRandom(1, 0, 3));
+
+            return Buff(duration, rate, 0, 0, increase);
+        }
+        case 1:
+        {
+            double rate = RandomUtil::normalDistributedRandom(0.1, 0, 0.5);
+            int increase = std::round(RandomUtil::normalDistributedRandom(6, 0, 20));
+            int duration = std::round(RandomUtil::normalDistributedRandom(2, 0, 4));
+
+            return Buff(duration, 0, rate, 0, 0, increase);
+        }
+        case 2:
+        {
+            double rate = RandomUtil::normalDistributedRandom(0.1, 0, 0.3);
+            int increase = std::round(RandomUtil::normalDistributedRandom(2, 0, 5));
+            int duration = std::round(RandomUtil::normalDistributedRandom(1, 0, 3));
+
+            return Buff(duration, 0, 0, rate, 0, 0, increase);
+        }
+    }
+}
+
+Buff Squirtle::generateBuff() const {
+    // 选择攻击/防御/速度Buff的权重
+    std::vector<double> weights = {0.4, 0.4, 0.2};
+    int index = RandomUtil::weightedRandomIndex(weights);
+    switch(index)
+    {
+        case 0:
+        {
+            double rate = RandomUtil::normalDistributedRandom(0.1, 0, 2);
+            int increase = std::round(RandomUtil::normalDistributedRandom(5, 0, 100));
+            int duration = std::round(RandomUtil::normalDistributedRandom(1, 0, 3));
+
+            return Buff(duration, rate, 0, 0, increase);
+        }
+        case 1:
+        {
+            double rate = RandomUtil::normalDistributedRandom(0.1, 0, 0.5);
+            int increase = std::round(RandomUtil::normalDistributedRandom(4, 0, 10));
+            int duration = std::round(RandomUtil::normalDistributedRandom(1, 0, 3));
+
+            return Buff(duration, 0, rate, 0, 0, increase);
+        }
+        case 2:
+        {
+            double rate = RandomUtil::normalDistributedRandom(0.1, 0, 0.3);
+            int increase = std::round(RandomUtil::normalDistributedRandom(2, 0, 5));
+            int duration = std::round(RandomUtil::normalDistributedRandom(1, 0, 3));
+
+            return Buff(duration, 0, 0, rate, 0, 0, increase);
+        }
+    }
 }
