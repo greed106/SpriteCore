@@ -191,6 +191,7 @@ private:
         handleSpriteLevelUp(computerReq, res);
         handleUserRate(req.getUsername(), isWinner);
         handleUserRate(computerReq.getUsername(), !isWinner);
+        handleMedalChange(req.getUsername());
 
         return ctx->send(nlohmann::json(res).dump());
     }
