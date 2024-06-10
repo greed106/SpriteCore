@@ -36,6 +36,7 @@ private:
     std::shared_ptr<State> currentState;
     std::shared_ptr<spdlog::logger> logger;
     std::string baseUrl = "http://localhost:8080";
+    std::string wsUrl = "ws://localhost:8080";
     bool isExit = true;
     std::string username;
     hv::WebSocketClient wsClient;

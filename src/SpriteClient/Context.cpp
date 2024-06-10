@@ -28,6 +28,8 @@ void Context::initWebSocket() {
     wsClient.onmessage = [this](const std::string& message) {
         auto j = nlohmann::json::parse(message);
         this->messageQueue.enqueue(j.get<BattleResult>());
+        wsClient.close();
+        this->logger->info("WebSocket closed");
     };
     wsClient.onclose = [this](){
         this->logger->info("WebSocket closed");
@@ -35,8 +37,5 @@ void Context::initWebSocket() {
 }
 
 void Context::openWebSocket() {
-    // 对baseUrl进行处理，将http替换为ws
-    std::string url = baseUrl;
-    url.replace(0, 4, "ws");
-    wsClient.open(url.c_str());
+    wsClient.open(wsUrl.c_str());
 }

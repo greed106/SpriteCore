@@ -83,7 +83,7 @@ private:
         auto isWinner = req.getUsername() == res.getWinner();
         handleSpriteLevelUp(req, res);
         handleUserRate(req.getUsername(), isWinner);
-        if(isWinner){
+        if(!isWinner){
             auto newName = getNewPrisonerName(req.getUsername(), prisonerName);
             auto prisoner = spriteService->getSprite(res.getLoser(), prisonerName);
             prisoner->setSpriteName(newName);
