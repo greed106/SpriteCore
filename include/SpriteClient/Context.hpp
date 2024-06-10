@@ -20,13 +20,22 @@ public:
     void setExit(bool isExit) { this->isExit = isExit; }
     bool getIsExit() const { return isExit; }
     void openWebSocket();
-    void sendMessage(const std::string& message) { wsClient.send(message); }
+    void sendMessage(const std::string& message) {
+        std::unique_lock<std::mutex> lock(mtx);
+        cv.wait(lock, [this] { return isConnected; }); // 等待连接建立
+        wsClient.send(message);
+    }
     BattleResult getResult(){
         while(true){
             auto opt = messageQueue.dequeue();
             if(opt.has_value()){
                 return opt.value();
             }
+        }
+    }
+    void closeWebSocket(){
+        if(isConnected){
+            wsClient.close();
         }
     }
     // 删除拷贝构造函数和赋值运算符
@@ -36,11 +45,14 @@ private:
     std::shared_ptr<State> currentState;
     std::shared_ptr<spdlog::logger> logger;
     std::string baseUrl = "http://localhost:8080";
-    std::string wsUrl = "ws://localhost:8080";
+    std::string wsUrl = "ws://127.0.0.1:8080";
     bool isExit = true;
     std::string username;
     hv::WebSocketClient wsClient;
     MessageQueue<BattleResult> messageQueue;
+    bool isConnected = false;
+    std::mutex mtx;
+    std::condition_variable cv;
 
     Context();
     void initWebSocket();

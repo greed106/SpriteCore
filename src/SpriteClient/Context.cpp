@@ -25,14 +25,21 @@ Context::Context(){
 }
 
 void Context::initWebSocket() {
+    wsClient.onopen = [this](){
+        this->logger->info("WebSocket opened");
+        std::unique_lock<std::mutex> lock(mtx);
+        isConnected = true;
+        cv.notify_all(); // 通知等待的线程连接已建立
+    };
     wsClient.onmessage = [this](const std::string& message) {
         auto j = nlohmann::json::parse(message);
         this->messageQueue.enqueue(j.get<BattleResult>());
-        wsClient.close();
         this->logger->info("WebSocket closed");
+        this->closeWebSocket();
     };
     wsClient.onclose = [this](){
-        this->logger->info("WebSocket closed");
+//        this->logger->info("WebSocket closed");
+        this->isConnected = false;
     };
 }
 

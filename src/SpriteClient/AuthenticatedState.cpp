@@ -82,6 +82,7 @@ AuthenticatedState::AuthenticatedState() {
         context.sendMessage(j.dump());
         State::logger->info("Waiting for battle result...");
         auto res = context.getResult();
+//        context.closeWebSocket();
         State::logger->info("Battle result: ");
         res.showInfo();
     };
