@@ -97,6 +97,44 @@ private:
             spriteService->addSprite(req.getUsername(), *sprite);
         }
     }
+    int getMaxSpriteSize(std::vector<Sprite> sprites){
+        int cnt = 0;
+        for(const auto& sprite : sprites){
+            if(sprite.getLevel().getLevel() == 15)
+                cnt++;
+        }
+        return cnt;
+    }
+    void handleMedalChange(const std::string& username){
+        auto user = userService->getUser(username);
+        auto sprites = spriteService->getSprites(user->getName());
+        auto size = sprites.size();
+        std::string medal = "bronze_number_medal";
+        if( size >= 4 && !user->isMedalExist(medal)){
+            userService->addMedal(username, medal);
+        }
+        medal = "silver_number_medal";
+        if( size >= 8 && !user->isMedalExist(medal)){
+            userService->addMedal(username, medal);
+        }
+        medal = "gold_number_medal";
+        if( size >= 12 && !user->isMedalExist(medal)){
+            userService->addMedal(username, medal);
+        }
+        size = getMaxSpriteSize(sprites);
+        medal = "bronze_level_medal";
+        if( size >= 1 && !user->isMedalExist(medal)){
+            userService->addMedal(username, medal);
+        }
+        medal = "silver_level_medal";
+        if( size >= 3 && !user->isMedalExist(medal)){
+            userService->addMedal(username, medal);
+        }
+        medal = "gold_level_medal";
+        if( size >= 5 && !user->isMedalExist(medal)){
+            userService->addMedal(username, medal);
+        }
+    }
     BattleRequest getComputerBattleRequest(const BattleRequest& userReq){
         auto s = spriteService->getSprite(getComputerName(), userReq.getOpponentName());
         JsonSprite prisoner(*s);
@@ -130,6 +168,7 @@ private:
             auto req = result.value().first;
             auto res = result.value().second;
             handleSpriteChange(req, res);
+            handleMedalChange(req.getUsername());
 
             if(req.getUsername() == getComputerName() && req.getIsComputer()){
                 continue;

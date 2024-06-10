@@ -189,4 +189,13 @@ public:
         randomSpriteNames.resize(size < randomSpriteNames.size() ? size : randomSpriteNames.size());
         return randomSpriteNames;
     }
+
+    bool isMedalExist(const std::string& medal){
+        for(const auto& m : medals){
+            if(m == medal){
+                return true;
+            }
+        }
+        return false;
+    }
 };
